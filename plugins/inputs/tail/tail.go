@@ -9,6 +9,7 @@ import (
 	_ "embed"
 	"errors"
 	"io"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -235,7 +236,7 @@ func (t *Tail) tailNewFiles(fromBeginning bool) error {
 				t.Log.Debugf("Tail removed for %q", tailer.Filename)
 
 				if err := tailer.Err(); err != nil {
-					if strings.Contains(err.Error(), "Unable to open file") {
+					if os.IsPermission(err) {
 						delete(t.tailers, tailer.Filename)
 					}
 
