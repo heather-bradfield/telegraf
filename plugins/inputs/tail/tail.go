@@ -184,7 +184,7 @@ func (t *Tail) tailNewFiles(fromBeginning bool) error {
 			var seek *tail.SeekInfo
 			if !t.Pipe && !fromBeginning {
 				if offset, ok := t.offsets[file]; ok {
-					t.Log.Debugf("Using offset %d for %q", offset, file)
+					t.Log.Infof("Using offset %d for %q", offset, file)
 					seek = &tail.SeekInfo{
 						Whence: 0,
 						Offset: offset,
@@ -235,6 +235,10 @@ func (t *Tail) tailNewFiles(fromBeginning bool) error {
 				t.Log.Debugf("Tail removed for %q", tailer.Filename)
 
 				if err := tailer.Err(); err != nil {
+					if strings.Contains(err.Error(), "Unable to open file") {
+						delete(t.tailers, tailer.Filename)
+					}
+
 					t.Log.Errorf("Tailing %q: %s", tailer.Filename, err.Error())
 				}
 			}()
